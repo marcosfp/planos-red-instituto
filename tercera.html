@@ -12,10 +12,18 @@
   <a class="back" href="index.html">← Todas las plantas</a>
   <div class="plan"><img src="img/tercera-planta-red.png" alt="Plano de la tercera planta con switches y cableado"></div>
   <div class="actions">
-    <a class="btn" href="img/tercera-planta-red.png">Ver imagen completa</a>
+    <button class="btn big" id="ver-plano" type="button">Ver plano en pantalla completa</button>
+  </div>
+  <p class="girar">Para verlo bien, gira el móvil a horizontal.</p>
+  <div class="actions">
+    <a class="btn alt" href="img/tercera-planta-red.png">Abrir imagen</a>
     <a class="btn alt" href="detalle/tercera-planta-red.html">Plano interactivo</a>
   </div>
-  <p class="hint">En el móvil, pulsa la imagen para ampliarla con dos dedos.</p>
 </main>
+<div class="plano-pantalla" id="plano-pantalla" hidden>
+  <button class="cerrar" id="cerrar-plano" type="button">Cerrar</button>
+  <img src="img/tercera-planta-red.png" alt="Plano de la tercera planta">
+</div>
+<script src="script.js"></script>
 </body>
 </html>

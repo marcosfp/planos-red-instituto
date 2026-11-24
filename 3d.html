@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vista 3D · Planos de red</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  html,body{height:100%;margin:0;overflow:hidden}
+  #scene{position:fixed;inset:0}
+  .top{position:fixed;top:0;left:0;right:0;z-index:5;background:rgba(39,51,63,.92);color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .top h1{margin:0;font-size:16px;font-weight:600}
+  .top a{color:#9fc4ff;text-decoration:none;font-size:14px}
+  .bar{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:10px;background:rgba(255,255,255,.95);border-top:1px solid #d5dbe1}
+  .bar button{border:1px solid #1f5fd6;background:#fff;color:#1f5fd6;border-radius:8px;padding:9px 12px;font-size:15px;cursor:pointer}
+  .bar button.on{background:#1f5fd6;color:#fff}
+  .tip{position:fixed;left:12px;top:56px;z-index:4;background:rgba(255,255,255,.9);padding:6px 10px;border-radius:8px;font-size:13px;color:#374151}
+</style>
+</head>
+<body>
+<div class="top"><h1>Edificio · vista 3D</h1><a href="index.html">← Inicio</a></div>
+<div class="tip">Arrastra para girar · pellizca para acercar · toca una planta</div>
+<div id="scene"></div>
+<div class="bar">
+  <button data-v="all" class="on" type="button">Vista general</button>
+  <button data-v="baja" type="button">Baja</button>
+  <button data-v="primera" type="button">1.ª</button>
+  <button data-v="segunda" type="button">2.ª</button>
+  <button data-v="tercera" type="button">3.ª</button>
+</div>
+
+<script type="importmap">
+{ "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// Plantas de abajo a arriba. y = altura de la planta en la maqueta.
+const PLANTAS = [
+  { id: 'baja',    nombre: 'Planta baja', img: 'img/planta-baja-red.png',    y: 0 },
+  { id: 'primera', nombre: '1.ª planta',  img: 'img/primera-planta-red.png', y: 1.6 },
+  { id: 'segunda', nombre: '2.ª planta',  img: 'img/segunda-planta-red.png', y: 3.2 },
+  { id: 'tercera', nombre: '3.ª planta',  img: 'img/tercera-planta-red.png', y: 4.8 },
+];
+
+// Recorte de cada PNG (3520x2000) para quedarnos solo con el plano, sin títulos ni tablas.
+const CROP = { x0: 60, x1: 3460, y0: 230, y1: 1145, W: 3520, H: 2000 };
+const u0 = CROP.x0 / CROP.W, uw = (CROP.x1 - CROP.x0) / CROP.W;
+const v0 = (CROP.H - CROP.y1) / CROP.H, vh = (CROP.y1 - CROP.y0) / CROP.H;
+const ANCHO = 6;                         // ancho de cada planta en la maqueta
+const ALTO = ANCHO * (CROP.y1 - CROP.y0) / (CROP.x1 - CROP.x0);
+
+const escena = new THREE.Scene();
+escena.background = new THREE.Color('#eef3f7');
+
+const cam = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.1, 200);
+cam.position.set(9, 10, 12);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.getElementById('scene').appendChild(renderer.domElement);
+
+const controles = new OrbitControls(cam, renderer.domElement);
+controles.enableDamping = true;
+controles.minDistance = 2;
+controles.maxDistance = 40;
+controles.target.set(0, 2.4, 0);
+controles.update();
+
+escena.add(new THREE.AmbientLight(0xffffff, 0.85));
+const sol = new THREE.DirectionalLight(0xffffff, 0.6);
+sol.position.set(5, 10, 7);
+escena.add(sol);
+
+const cargador = new THREE.TextureLoader();
+const planos = [];
+const grupo = new THREE.Group();
+escena.add(grupo);
+
+PLANTAS.forEach((p) => {
+  // Losa de cada planta (da sensación de edificio)
+  const losa = new THREE.Mesh(
+    new THREE.BoxGeometry(ANCHO + 0.25, 0.08, ALTO + 0.25),
+    new THREE.MeshStandardMaterial({ color: '#8fa3b3' })
+  );
+  losa.position.set(0, p.y - 0.06, 0);
+  grupo.add(losa);
+
+  const tex = cargador.load(p.img, (t) => { t.colorSpace = THREE.SRGBColorSpace; });
+  tex.repeat.set(uw, vh);
+  tex.offset.set(u0, v0);
+  const plano = new THREE.Mesh(
+    new THREE.PlaneGeometry(ANCHO, ALTO),
+    new THREE.MeshBasicMaterial({ map: tex, transparent: true })
+  );
+  plano.rotation.x = -Math.PI / 2;
+  plano.position.set(0, p.y + 0.005, 0);
+  plano.userData.id = p.id;
+  grupo.add(plano);
+  planos.push(plano);
+});
+
+// Vistas predefinidas
+const VISTAS = { all: { pos: new THREE.Vector3(9, 10, 12), tgt: new THREE.Vector3(0, 2.4, 0) } };
+PLANTAS.forEach((p) => {
+  VISTAS[p.id] = { pos: new THREE.Vector3(0, p.y + 4.5, 4.5), tgt: new THREE.Vector3(0, p.y, 0) };
+});
+
+let vuelo = null;
+function irA(id) {
+  const v = VISTAS[id];
+  vuelo = { desde: cam.position.clone(), hasta: v.pos.clone(),
+            tgtDesde: controles.target.clone(), tgtHasta: v.tgt.clone(), t: 0 };
+  document.querySelectorAll('.bar button').forEach((b) => b.classList.toggle('on', b.dataset.v === id));
+}
+document.querySelectorAll('.bar button').forEach((b) => b.addEventListener('click', () => irA(b.dataset.v)));
+
+// Tocar una planta para acercarse a ella
+const rayo = new THREE.Raycaster();
+const puntero = new THREE.Vector2();
+let movido = false;
+renderer.domElement.addEventListener('pointerdown', () => { movido = false; });
+renderer.domElement.addEventListener('pointermove', () => { movido = true; });
+renderer.domElement.addEventListener('pointerup', (e) => {
+  if (movido) return;
+  const r = renderer.domElement.getBoundingClientRect();
+  puntero.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  rayo.setFromCamera(puntero, cam);
+  const hit = rayo.intersectObjects(planos, false)[0];
+  if (hit) irA(hit.object.userData.id);
+});
+
+window.addEventListener('resize', () => {
+  cam.aspect = innerWidth / innerHeight;
+  cam.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+renderer.setAnimationLoop(() => {
+  if (vuelo) {
+    vuelo.t = Math.min(1, vuelo.t + 0.04);
+    const k = vuelo.t < 0.5 ? 2 * vuelo.t * vuelo.t : 1 - Math.pow(-2 * vuelo.t + 2, 2) / 2;
+    cam.position.lerpVectors(vuelo.desde, vuelo.hasta, k);
+    controles.target.lerpVectors(vuelo.tgtDesde, vuelo.tgtHasta, k);
+    if (vuelo.t >= 1) vuelo = null;
+  }
+  controles.update();
+  renderer.render(escena, cam);
+});
+</script>
+</body>
+</html>

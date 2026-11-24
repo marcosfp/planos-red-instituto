@@ -1,0 +1,267 @@
+<title>Planta baja · red</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: plano técnico apaisado a todo el ancho, leyenda encima, tablas de cableado debajo */
+:root{
+  --bg:#f3f5f7; --paper:#ffffff; --fg:#17212b; --muted:#5d6b78;
+  --wall:#27333f; --room:#ffffff; --svc:#e4e9ee; --corr:#fbf1c7; --patio:#f5cdb4;
+  --cable:#1f5fd6; --cable-soft:#dbe7ff; --pp:#0b7a53; --pp-soft:#dcf3ea; --ubi:#2fb4e9; --warn:#a15c00; --warn-soft:#fbecd6;
+  --rule:#d5dbe1;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12171c; --paper:#1a2129; --fg:#e6ebf0; --muted:#9aa7b3;
+  --wall:#b9c4cf; --room:#1a2129; --svc:#262f39; --corr:#3a341b; --patio:#4d2e21;
+  --cable:#6ea4ff; --cable-soft:#1d3157; --pp:#4fd0a0; --pp-soft:#143a2e; --ubi:#7fd6f7; --warn:#f0b35a; --warn-soft:#3a2a12;
+  --rule:#313b46; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#12171c; --paper:#1a2129; --fg:#e6ebf0; --muted:#9aa7b3;
+  --wall:#b9c4cf; --room:#1a2129; --svc:#262f39; --corr:#3a341b; --patio:#4d2e21;
+  --cable:#6ea4ff; --cable-soft:#1d3157; --pp:#4fd0a0; --pp-soft:#143a2e; --ubi:#7fd6f7; --warn:#f0b35a; --warn-soft:#3a2a12;
+  --rule:#313b46; color-scheme:dark }
+
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.5;
+  padding-inline:20px;padding-block:28px 48px}
+.wrap{max-width:1700px;margin-inline:auto;display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px}
+h1{margin:0;font-size:28px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.sub{margin:2px 0 0;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--muted);list-style:none;margin:0;padding:0}
+.legend li{display:flex;align-items:center;gap:8px}
+.k-cable{width:28px;height:0;border-top:2.5px solid var(--cable)}
+.k-up{width:28px;height:0;border-top:2.5px dashed var(--cable)}
+.k-sw{width:14px;height:14px;background:var(--cable);border-radius:2px}
+.k-ges{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--warn);background:var(--warn-soft);padding:1px 7px;border-radius:10px}
+.k-svc{width:18px;height:14px;background:var(--svc);border:1.5px solid var(--wall)}
+
+.plan{background:var(--paper);border:1px solid var(--rule);overflow-x:auto}
+.plan svg{display:block;width:100%;min-width:1300px;height:auto}
+.room{fill:var(--room);stroke:var(--wall);stroke-width:4;stroke-linejoin:round}
+.svc{fill:var(--svc);stroke:var(--wall);stroke-width:4;stroke-linejoin:round}
+.corr{fill:var(--corr);stroke:var(--wall);stroke-width:4;stroke-linejoin:round}
+.patio{fill:var(--patio);stroke:var(--wall);stroke-width:4;stroke-linejoin:round}
+.lbox{fill:var(--paper);stroke:var(--wall);stroke-width:3}
+.tr{stroke:var(--wall);stroke-width:1.6;fill:none}
+.win{stroke:var(--wall);stroke-width:2.5;stroke-dasharray:38 12;fill:none}
+.door{stroke:var(--corr);stroke-width:7;fill:none}
+.arc{stroke:var(--wall);stroke-width:2;fill:none}
+.ent{fill:var(--wall)}
+.n{font-family:var(--mono);font-weight:600;font-size:42px;fill:var(--fg);text-anchor:middle}
+.t{font-family:var(--sans);font-weight:500;font-size:23px;fill:var(--muted);text-anchor:middle;letter-spacing:.04em}
+.t.sm{font-size:16px}
+.t.dk{fill:var(--fg)}
+.cable{stroke:var(--cable);stroke-width:5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.up{stroke-dasharray:14 11}
+.end{fill:var(--cable)}
+.sw{fill:var(--cable);stroke:var(--paper);stroke-width:3}
+.cbb{fill:var(--cable-soft)}
+.cbt{font-family:var(--sans);font-weight:600;font-size:24px;fill:var(--cable);text-anchor:middle}
+.gb{fill:var(--warn-soft)}
+.gt{font-family:var(--mono);font-weight:600;font-size:18px;fill:var(--warn);text-anchor:middle}
+.wt{font-family:var(--sans);font-weight:600;font-size:22px;fill:var(--warn)}
+.wl{stroke:var(--warn);stroke-width:3;fill:none}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px 36px}
+.grid>section{min-width:0}
+h2{margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px 6px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:13px}
+td.m{font-family:var(--mono);font-weight:600;white-space:nowrap}
+td.cb{color:var(--cable)} td.wn{color:var(--warn)}
+.check{margin:0;padding-left:18px}
+.check li{margin-bottom:6px}
+.check li::marker{color:var(--warn)}
+.k-pat{width:18px;height:14px;background:var(--patio);border:1.5px solid var(--wall)}
+.k-cor{width:18px;height:14px;background:var(--corr);border:1.5px solid var(--wall)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Planta baja</h1>
+      <p class="sub">Cableado Ethernet y switches de la planta baja</p>
+    </div>
+    <ul class="legend">
+      <li><svg width="32" height="21" viewBox="0 200 1200 800"><use href="#sw-icon" x="0" y="200" width="1200" height="800"/></svg>Switch</li>
+      <li><span class="k-cable"></span>Cable Ethernet</li>
+      <li><span class="k-up"></span>Enlace con la 1.ª planta</li>
+      <li><span class="k-ges">GESTIÓN</span>Red de gestión</li>
+      <li><span class="k-pat"></span>Patio</li><li><span class="k-cor"></span>Pasillo</li>
+      <li><span class="k-svc"></span>Escaleras, aseos</li>
+    </ul>
+  </header>
+
+  <div class="plan">
+    <svg viewBox="0 40 3200 1240" role="img" aria-label="Plano horizontal de la planta baja con switches y cables Ethernet">
+
+      <!-- contorno: todo lo que no es aula queda como pasillo -->
+      <polygon class="corr" points="80,72 1220,72 1220,380 1740,380 1740,312 2460,312 2460,460 3040,460 2990,1060 1380,1060 1380,980 80,980"/>
+      <path class="win" d="M84 992H1376 M1384 1072H2986 M3052 470L3002 1052"/>
+
+      <!-- ===== zona izquierda ===== -->
+      <rect class="room" x="80" y="72" width="288" height="332"/>
+      <rect class="room" x="80" y="404" width="220" height="100"/>
+      <rect class="svc"  x="300" y="510" width="52" height="80"/>
+      <path class="tr" d="M306 518V582 M313 518V582 M320 518V582 M327 518V582 M334 518V582 M341 518V582"/>
+      <rect class="patio" x="368" y="72" width="852" height="540"/>
+      <rect class="room" x="80" y="596" width="168" height="194"/>
+      <rect class="room" x="80" y="800" width="120" height="180"/>
+      <rect class="room" x="248" y="596" width="360" height="384"/>
+      <rect class="room" x="608" y="612" width="120" height="140"/>
+      <rect class="room" x="608" y="808" width="120" height="172"/>
+      <rect class="room" x="728" y="640" width="252" height="112"/>
+      <rect class="room" x="980" y="640" width="200" height="112"/>
+      <rect class="svc"  x="1232" y="660" width="88" height="92"/>
+      <path class="tr" d="M1240 668H1312 M1240 678H1312 M1240 688H1312 M1240 698H1312 M1240 708H1312 M1240 718H1312 M1240 728H1312 M1240 738H1312"/>
+      <rect class="svc"  x="1320" y="660" width="60" height="92"/>
+      <path class="tr" d="M1320 660L1380 752 M1380 660L1320 752"/>
+      <rect class="room" x="728" y="808" width="292" height="172"/>
+      <rect class="room" x="1020" y="808" width="80" height="172"/>
+      <rect class="room" x="1100" y="808" width="40" height="172"/>
+      <rect class="room" x="1140" y="808" width="100" height="172"/>
+      <rect class="svc"  x="1240" y="808" width="70" height="172"/>
+      <rect class="svc"  x="1310" y="808" width="70" height="172"/>
+      <path class="tr" d="M1250 836H1300 M1250 866H1300 M1320 836H1370 M1320 866H1370"/>
+      <polygon class="ent" points="100,975 128,975 114,950"/>
+
+      <text class="t dk" x="224" y="245">GIMNASIO</text>
+      <text class="t" x="190" y="462">VESTUARIO</text>
+      <text class="t sm" x="794" y="345">PATIO</text>
+      <text class="t dk" x="430" y="792">CAFETERÍA</text>
+      <text class="t sm" x="668" y="676">DESP. E.</text><text class="t sm" x="668" y="696">DIST.</text>
+      <text class="t sm" x="668" y="886">DESP. E.</text><text class="t sm" x="668" y="906">DIST.</text>
+      <text class="n" x="854" y="712">003</text>
+      <text class="n" x="1080" y="712">005</text>
+      <text class="n" x="874" y="908">001</text>
+      <text class="t sm" x="1190" y="886">DESP. E.</text><text class="t sm" x="1190" y="906">DIST.</text>
+      <text class="t sm" x="1275" y="910">W.C.</text><text class="t sm" x="1345" y="910">W.C.</text>
+
+      <!-- rótulos en recuadro, como en el original -->
+      <rect class="lbox" x="40" y="1004" width="312" height="58"/><text class="t sm dk" x="196" y="1040">ENTRADA AL GARAJE</text>
+      <rect class="lbox" x="620" y="1004" width="300" height="78"/><text class="t sm dk" x="770" y="1036">JEFAT. ESTUDIOS</text><text class="t sm dk" x="770" y="1060">E. DISTANCIA</text>
+      <rect class="lbox" x="940" y="1004" width="180" height="78"/><text class="t sm dk" x="1030" y="1036">BIBLIOTECA</text><text class="t sm dk" x="1030" y="1060">DISTANCIA</text>
+
+      <!-- ===== zona central y derecha ===== -->
+      <rect class="room" x="1220" y="380" width="220" height="140"/>
+      <rect class="room" x="1440" y="380" width="260" height="140"/>
+      <rect class="room" x="1700" y="380" width="40" height="140"/>
+      <rect class="lbox" x="1460" y="296" width="220" height="70"/><text class="t sm dk" x="1570" y="326">DEPTO. DE</text><text class="t sm dk" x="1570" y="350">ED. FÍSICA</text>
+      <rect class="room" x="1740" y="312" width="80" height="208"/>
+      <rect class="room" x="1820" y="312" width="60" height="208"/>
+      <rect class="room" x="1880" y="312" width="320" height="208"/>
+      <rect class="room" x="2200" y="312" width="260" height="168"/>
+      <rect class="lbox" x="2500" y="388" width="180" height="52"/><text class="t sm dk" x="2590" y="420">A.P.A.</text>
+      <rect class="room" x="1220" y="520" width="220" height="140"/>
+      <rect class="patio" x="1440" y="520" width="720" height="232"/>
+      <rect class="room" x="2160" y="520" width="100" height="232"/>
+      <rect class="patio" x="2260" y="520" width="320" height="232"/>
+      <rect class="room" x="2580" y="460" width="443" height="200"/>
+      <path class="tr" d="M2820 462L2856 658"/>
+      <polygon class="room" points="2580,660 3023,660 3005,880 2640,880"/>
+      <rect class="room" x="1380" y="808" width="160" height="252"/>
+      <rect class="room" x="1540" y="880" width="120" height="180"/>
+      <rect class="room" x="1660" y="808" width="340" height="252"/>
+      <!-- Taller de Tecnología (izq., con el Depto. de Tecnología en su mitad superior) y Lab. de Ensayos Físicos (der.) -->
+      <rect class="room" x="2020" y="808" width="160" height="252"/>
+      <rect class="room" x="2020" y="808" width="160" height="126"/>
+      <rect class="room" x="2180" y="808" width="160" height="252"/>
+      <!-- escalera sobre la Secretaría, en diagonal como en el original -->
+      <polygon class="svc" points="2420,792 2520,792 2550,880 2450,880"/>
+      <path class="tr" d="M2428 800L2458 872 M2440 800L2470 872 M2452 800L2482 872 M2464 800L2494 872 M2476 800L2506 872 M2488 800L2518 872 M2500 800L2530 872 M2512 800L2542 872"/>
+      <rect class="room" x="2360" y="880" width="340" height="180"/>
+      <!-- escalera a la derecha de la Secretaría -->
+      <rect class="svc"  x="2700" y="952" width="90" height="108"/>
+      <path class="tr" d="M2706 962H2784 M2706 974H2784 M2706 986H2784 M2706 998H2784 M2706 1010H2784 M2706 1022H2784 M2706 1034H2784 M2706 1046H2784"/>
+      <polygon class="ent" points="1446,1090 1474,1090 1460,1066"/>
+      <polygon class="ent" points="2950,868 2976,880 2950,892"/>
+
+      <text class="t dk" x="2040" y="424">SALÓN DE ACTOS</text>
+      <text class="n" x="2330" y="410">002</text>
+      <text class="t sm" x="1800" y="645">PATIO</text>
+      <text class="t sm" x="2420" y="645">PATIO</text>
+      <text class="n" x="2700" y="575">004</text>
+      <text class="t dk" x="2800" y="726">VESTÍBULO</text><text class="t dk" x="2800" y="754">SAN BERNARDO</text>
+      <text class="t dk" x="1460" y="930">VESTÍBULO</text><text class="t dk" x="1460" y="958">DAOIZ</text>
+      <text class="t sm" x="1600" y="972">CONSERJ.</text>
+      <text class="t dk" x="1830" y="960">GIMNASIO</text>
+      <text class="t sm dk" x="2100" y="852">DEPTO. DE</text><text class="t sm dk" x="2100" y="874">TECNOLOGÍA</text>
+      <text class="t sm dk" x="2100" y="982">TALLER DE</text><text class="t sm dk" x="2100" y="1004">TECNOLOGÍA</text>
+      <text class="t sm dk" x="2260" y="982">LAB. ENSAYOS</text><text class="t sm dk" x="2260" y="1004">FÍSICOS</text>
+      <text class="t dk" x="2530" y="955">SECRETARÍA</text>
+
+      <!-- puertas (orientativas) -->
+      <path class="door" d="M850 752h22 M1060 752h22 M800 808h22 M1050 808h22 M560 752v22 M1700 808h22 M1400 808h22 M2030 808h22 M2300 808h22 M2560 880h22"/>
+      <path class="arc" d="M850 752v-22a22 22 0 0 1 22 22 M1060 752v-22a22 22 0 0 1 22 22 M800 808v22a22 22 0 0 0 22 -22 M1050 808v22a22 22 0 0 0 22 -22 M1700 808v22a22 22 0 0 0 22 -22 M1400 808v22a22 22 0 0 0 22 -22 M2030 808v22a22 22 0 0 0 22 -22 M2300 808v22a22 22 0 0 0 22 -22 M2580 880v22a22 22 0 0 1 -22 -22"/>
+
+      <!-- ===== RED ===== -->
+      <!-- Secretaría: red de gestión -->
+      <rect class="gb" x="2460" y="980" width="140" height="34" rx="17"/><text class="gt" x="2530" y="1004">GESTIÓN</text>
+      <!-- Vestíbulo San Bernardo: comprobar -->
+      <path class="wl" d="M3170 880H2990"/>
+      <text class="wt" x="3020" y="862">COMPROBAR</text>
+
+      <!-- switch del Lab. de Ensayos Físicos: «todo va aquí» -->
+      <g>
+        <path class="cable" d="M2260 878 V792 Q2260 780 2248 780 H560"/><circle class="end" cx="560" cy="780" r="9"/>
+        <path class="cable" d="M1830 780 V880"/><circle class="end" cx="1830" cy="880" r="9"/>
+        <path class="cable" d="M2238 892 H2110"/><circle class="end" cx="2110" cy="892" r="9"/>
+        <path class="cable" d="M2238 912 H2207 Q2195 912 2195 924 V1028 Q2195 1040 2183 1040 H2110"/><circle class="end" cx="2110" cy="1040" r="9"/>
+        <circle class="end" cx="1830" cy="780" r="6"/>
+        <text class="t sm" x="430" y="852">ORDENADORES</text><text class="t sm" x="430" y="872">PLANTA BAJA</text>
+      </g>
+      <!-- enlace con el switch junto al Almacén TIC (1.ª planta) -->
+      <g>
+        <path class="cable up" d="M2282 890 H2296 Q2308 890 2308 878 V800 Q2308 788 2320 788 H2888 Q2900 788 2900 800 V1196"/>
+        <polygon class="end" points="2887,1170 2913,1170 2900,1194"/>
+        <rect class="cbb" x="2390" y="1196" width="720" height="56" rx="28"/>
+        <text class="cbt" x="2750" y="1233">Sube a la 1.ª planta: switch junto al Almacén TIC</text>
+      </g>
+      <symbol id="sw-icon" viewBox="0 200 1200 800">
+        <path d="M175 250H1025Q1045 250 1050 265L1198 605Q1205 650 1170 650H30Q-5 650 2 605L150 265Q155 250 175 250Z" fill="var(--cable-soft)"/>
+        <path d="M0 650H1200V925Q1200 950 1175 950H25Q0 950 0 925Z" fill="var(--cable)"/>
+        <g fill="var(--wall)">
+          <path d="M400 725H450V750H475V775H500V875H350V775H375V750H400Z"/>
+          <path d="M600 725H650V750H675V775H700V875H550V775H575V750H600Z"/>
+          <path d="M800 725H850V750H875V775H900V875H750V775H775V750H800Z"/>
+          <path d="M1000 725H1050V750H1075V775H1100V875H950V775H975V750H1000Z"/>
+        </g>
+        <g fill="var(--pp)">
+          <circle cx="125" cy="750" r="25"/><circle cx="225" cy="750" r="25"/>
+          <circle cx="125" cy="850" r="25"/><circle cx="225" cy="850" r="25"/>
+        </g>
+      </symbol>
+      <use href="#sw-icon" x="2228" y="878" width="64" height="43"/>
+    </svg>
+  </div>
+
+  <div class="grid">
+    <section>
+      <h2>Switches y cables</h2>
+      <table>
+        <tr><th>Switch en</th><th>Da servicio a</th></tr>
+        <tr><td class="m cb">Lab. de Ensayos Físicos</td><td>Taller de Tecnología, Depto. de Tecnología, Gimnasio y los ordenadores de la planta baja (zona cafetería)</td></tr>
+        <tr><td class="m cb">Junto al Almacén TIC (1.ª planta)</td><td>Enlaza con el switch del Lab. de Ensayos Físicos y da servicio a la Sala de profesores</td></tr>
+      </table>
+    </section>
+    <section>
+      <h2>Otras notas</h2>
+      <table>
+        <tr><th>Dónde</th><th>Nota</th></tr>
+        <tr><td class="m wn">Secretaría</td><td>Red de gestión</td></tr>
+        <tr><td class="m wn">Vestíbulo San Bernardo</td><td>Comprobar</td></tr>
+      </table>
+    </section>
+    <section>
+      <h2>A revisar</h2>
+      <ul class="check">
+        <li>El escaneo se ve con poca resolución; la forma de las salas es aproximada.</li>
+        <li>«Gym» se ha unido al gimnasio que está junto al Taller de Tecnología, no al del extremo izquierdo.</li>
+        <li>Las escaleras junto a la Secretaría se han recolocado según el original; revisa que coincidan.</li>
+        <li>El enlace con la 1.ª planta va dibujado de forma orientativa; no consta por dónde sube.</li>
+        <li>No consta qué hay que comprobar en el Vestíbulo San Bernardo.</li>
+      </ul>
+    </section>
+  </div>
+</div>

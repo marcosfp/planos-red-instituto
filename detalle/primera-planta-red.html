@@ -1,0 +1,323 @@
+<title>Primera planta · red</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: plano técnico apaisado a todo el ancho, leyenda encima, tablas de cableado debajo */
+:root{
+  --bg:#f3f5f7; --paper:#ffffff; --fg:#17212b; --muted:#5d6b78;
+  --wall:#27333f; --room:#ffffff; --svc:#e4e9ee; --corr:#fbf1c7; --patio:#f5cdb4;
+  --cable:#1f5fd6; --cable-soft:#dbe7ff; --pp:#0b7a53; --warn:#a15c00; --warn-soft:#fbecd6;
+  --rule:#d5dbe1;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12171c; --paper:#1a2129; --fg:#e6ebf0; --muted:#9aa7b3;
+  --wall:#b9c4cf; --room:#1a2129; --svc:#262f39; --corr:#3a341b; --patio:#4d2e21;
+  --cable:#6ea4ff; --cable-soft:#1d3157; --pp:#4fd0a0; --warn:#f0b35a; --warn-soft:#3a2a12;
+  --rule:#313b46; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#12171c; --paper:#1a2129; --fg:#e6ebf0; --muted:#9aa7b3;
+  --wall:#b9c4cf; --room:#1a2129; --svc:#262f39; --corr:#3a341b; --patio:#4d2e21;
+  --cable:#6ea4ff; --cable-soft:#1d3157; --pp:#4fd0a0; --warn:#f0b35a; --warn-soft:#3a2a12;
+  --rule:#313b46; color-scheme:dark }
+
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.5;
+  padding-inline:20px;padding-block:28px 48px}
+.wrap{max-width:1700px;margin-inline:auto;display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px}
+h1{margin:0;font-size:28px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.sub{margin:2px 0 0;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--muted);list-style:none;margin:0;padding:0}
+.legend li{display:flex;align-items:center;gap:8px}
+.k-cable{width:28px;height:0;border-top:2.5px solid var(--cable)}
+.k-up{width:28px;height:0;border-top:2.5px dashed var(--cable)}
+.k-sw{width:14px;height:14px;background:var(--cable);border-radius:2px}
+.k-note{font-size:11px;font-weight:600;color:var(--warn);letter-spacing:.04em}
+.k-svc{width:18px;height:14px;background:var(--svc);border:1.5px solid var(--wall)}
+
+.plan{background:var(--paper);border:1px solid var(--rule);overflow-x:auto}
+.plan svg{display:block;width:100%;min-width:1300px;height:auto}
+.room{fill:var(--room);stroke:var(--wall);stroke-width:4;stroke-linejoin:round}
+.svc{fill:var(--svc);stroke:var(--wall);stroke-width:4;stroke-linejoin:round}
+.corr{fill:var(--corr);stroke:var(--wall);stroke-width:4;stroke-linejoin:round}
+.patio{fill:var(--patio);stroke:var(--wall);stroke-width:4;stroke-linejoin:round}
+.lbox{fill:var(--paper);stroke:var(--wall);stroke-width:3}
+.ll{stroke:var(--wall);stroke-width:2}
+.tr{stroke:var(--wall);stroke-width:1.6;fill:none}
+.win{stroke:var(--wall);stroke-width:2.5;stroke-dasharray:38 12;fill:none}
+.door{stroke:var(--corr);stroke-width:7;fill:none}
+.arc{stroke:var(--wall);stroke-width:2;fill:none}
+.n{font-family:var(--mono);font-weight:600;font-size:42px;fill:var(--fg);text-anchor:middle}
+.t{font-family:var(--sans);font-weight:500;font-size:23px;fill:var(--muted);text-anchor:middle;letter-spacing:.04em}
+.t.sm{font-size:16px}
+.t.xs{font-size:13px;letter-spacing:.02em}
+.t.dk{fill:var(--fg)}
+.cable{stroke:var(--cable);stroke-width:5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.up{stroke-dasharray:14 11}
+.end{fill:var(--cable)}
+.sw{fill:var(--cable);stroke:var(--paper);stroke-width:3}
+.rt{fill:var(--pp);stroke:var(--paper);stroke-width:3}
+.gcab{stroke:var(--pp)}
+.gend{fill:var(--pp)}
+.k-gcab{width:28px;height:0;border-top:2.5px solid var(--pp)}
+.k-rt{width:16px;height:16px;background:var(--pp);border-radius:3px}
+.cbb{fill:var(--cable-soft)}
+.cbt{font-family:var(--sans);font-weight:600;font-size:24px;fill:var(--cable);text-anchor:middle}
+.swl{font-family:var(--sans);font-weight:600;font-size:16px;fill:var(--cable);letter-spacing:.04em}
+.wt{font-family:var(--sans);font-weight:600;font-size:20px;fill:var(--warn);letter-spacing:.04em}
+.wl{stroke:var(--warn);stroke-width:3;fill:none}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px 36px}
+.grid>section{min-width:0}
+h2{margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px 6px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:13px}
+td.m{font-family:var(--mono);font-weight:600;white-space:nowrap}
+td.cb{color:var(--cable)} td.wn{color:var(--warn)}
+.check{margin:0;padding-left:18px}
+.check li{margin-bottom:6px}
+.check li::marker{color:var(--warn)}
+.k-pat{width:18px;height:14px;background:var(--patio);border:1.5px solid var(--wall)}
+.k-cor{width:18px;height:14px;background:var(--corr);border:1.5px solid var(--wall)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Primera planta</h1>
+      <p class="sub">Cableado Ethernet y switches de la primera planta</p>
+    </div>
+    <ul class="legend">
+      <li><span class="k-rt"></span>Router principal</li>
+      <li><svg width="32" height="21" viewBox="0 200 1200 800"><use href="#sw-icon" x="0" y="200" width="1200" height="800"/></svg>Switch</li>
+      <li><span class="k-rt" style="width:12px;height:12px"></span>Switch de gestión</li>
+      <li><span class="k-cable"></span>Cable Ethernet</li>
+      <li><span class="k-gcab"></span>Cable de gestión (VPN)</li>
+      <li><span class="k-up"></span>Enlace con la planta baja</li>
+      <li><span class="k-note">COMPROBAR</span>Nota a mano del original</li>
+      <li><span class="k-pat"></span>Patio</li><li><span class="k-cor"></span>Pasillo</li>
+      <li><span class="k-svc"></span>Escaleras, servicios</li>
+    </ul>
+  </header>
+
+  <div class="plan">
+    <svg viewBox="0 180 3020 1100" role="img" aria-label="Plano horizontal de la primera planta con switches y cables Ethernet">
+
+      <!-- contorno: lo que no es sala queda como pasillo -->
+      <polygon class="corr" points="68,610 1480,610 1480,460 1800,460 1800,272 2364,272 2364,300 2564,300 2564,460 2900,460 2850,1020 68,1020"/>
+      <path class="win" d="M72 1032H2846 M2914 468L2862 1012 M72 598H1476"/>
+
+      <!-- ===== ala de aulas ===== -->
+      <rect class="room" x="68" y="610" width="172" height="198"/>
+      <rect class="svc"  x="72" y="614" width="100" height="58"/>
+      <path class="tr" d="M80 622H164 M80 630H164 M80 638H164 M80 646H164 M80 654H164 M80 662H164"/>
+      <rect class="room" x="240" y="610" width="128" height="198"/>
+      <rect class="room" x="368" y="610" width="184" height="198"/>
+      <rect class="room" x="552" y="610" width="100" height="198"/>
+      <rect class="room" x="652" y="610" width="128" height="198"/>
+      <rect class="room" x="780" y="610" width="240" height="198"/>
+      <rect class="room" x="1020" y="610" width="248" height="198"/>
+      <rect class="room" x="1268" y="610" width="120" height="198"/>
+      <rect class="svc"  x="1388" y="610" width="92" height="198"/>
+      <path class="tr" d="M1396 700L1430 740 M1430 700L1396 740 M1438 700L1472 740 M1472 700L1438 740"/>
+
+      <rect class="room" x="68" y="848" width="144" height="172"/>
+      <rect class="room" x="212" y="848" width="148" height="172"/>
+      <rect class="room" x="360" y="848" width="184" height="172"/>
+      <rect class="room" x="544" y="848" width="108" height="172"/>
+      <rect class="room" x="652" y="848" width="108" height="172"/>
+      <rect class="room" x="760" y="848" width="248" height="172"/>
+      <rect class="room" x="1008" y="848" width="244" height="172"/>
+      <rect class="room" x="1252" y="848" width="76" height="172"/>
+      <rect class="svc"  x="1328" y="848" width="92" height="172"/>
+      <rect class="svc"  x="1420" y="848" width="60" height="172"/>
+
+      <text class="n" x="200" y="760">117</text>
+      <text class="n" x="304" y="700">119</text>
+      <text class="n" x="460" y="700">121</text>
+      <text class="n" x="602" y="700">123</text>
+      <text class="n" x="716" y="700">125</text>
+      <text class="n" x="900" y="700">127</text>
+      <text class="n" x="1110" y="652">129</text><text class="t sm" x="1110" y="678">JEFATURA</text>
+      <text class="n" x="1328" y="700">131</text>
+      <text class="n" x="140" y="975">115</text>
+      <text class="n" x="286" y="965">113</text><text class="t sm" x="286" y="995">COMP.</text>
+      <text class="n" x="452" y="965">111</text><text class="t sm" x="452" y="995">1.º C ESO</text>
+      <text class="n" x="598" y="965">109</text>
+      <text class="n" x="706" y="975">107</text>
+      <text class="n" x="884" y="965">105</text><text class="t sm" x="884" y="995">1.º B ESO</text>
+      <text class="n" x="1130" y="965">103</text><text class="t sm" x="1130" y="995">1.º A ESO</text>
+      <text class="t dk" x="1290" y="955">101</text>
+
+      <!-- rótulos en recuadro, como en el original -->
+      <!-- departamentos rotulados dentro de su sala -->
+      <text class="t xs dk" x="602" y="730">MATEMÁTICAS</text>
+      <text class="t xs dk" x="716" y="730">LENGUA</text>
+      <text class="t xs dk" x="1328" y="757">ORIENTACIÓN</text>
+      <text class="t xs dk" x="598" y="998">ALEMÁN</text>
+      <text class="t xs dk" x="1290" y="988">SALA DE</text><text class="t xs dk" x="1290" y="1005">VISITAS</text>
+
+      <!-- ===== zona de la sala de profesores y dirección ===== -->
+      <rect class="room" x="1492" y="500" width="140" height="240"/>
+      <rect class="room" x="1632" y="500" width="152" height="240"/>
+      <rect class="svc"  x="1480" y="740" width="112" height="100"/>
+      <path class="tr" d="M1488 748V832 M1498 748V832 M1508 748V832 M1518 748V832 M1528 748V832 M1538 748V832 M1548 748V832 M1558 748V832 M1568 748V832 M1578 748V832"/>
+      <text class="t xs dk" x="1562" y="560">SALA DE</text><text class="t xs dk" x="1562" y="578">CLAUSTROS</text>
+      <text class="t xs dk" x="1708" y="530">SALA DE</text><text class="t xs dk" x="1708" y="548">PROFESORES</text>
+      <rect class="patio" x="1800" y="272" width="564" height="488"/>
+      <line class="tr" x1="1800" y1="552" x2="2364" y2="552"/>
+      <text class="t sm" x="2082" y="420">PATIO</text>
+      <path class="tr" d="M1830 800h20 M1890 800h20 M1950 800h20 M2010 800h20 M2070 800h20 M2130 800h20 M2190 800h20 M2250 800h20 M2310 800h20"/>
+
+      <rect class="room" x="2364" y="300" width="200" height="252"/>
+      <line class="ll" x1="2464" y1="288" x2="2464" y2="300"/><rect class="lbox" x="2364" y="208" width="200" height="80"/><text class="t sm dk" x="2464" y="240">AULA DE</text><text class="t sm dk" x="2464" y="264">MÚSICA</text>
+      <rect class="room" x="2564" y="460" width="136" height="92"/>
+      <polygon class="room" points="2700,460 2900,460 2892,552 2700,552"/>
+      <text class="t xs dk" x="2822" y="500">DEPT. DE</text><text class="t xs dk" x="2822" y="518">ECONOMÍA</text>
+      <line class="ll" x1="2632" y1="440" x2="2632" y2="460"/><rect class="lbox" x="2572" y="360" width="140" height="80"/><text class="t sm dk" x="2642" y="392">SALA DEL</text><text class="t sm dk" x="2642" y="416">ROUTER</text>
+      <rect class="corr" x="2364" y="552" width="236" height="208"/>
+      <rect class="svc"  x="2440" y="640" width="120" height="120"/>
+      <path class="tr" d="M2446 650H2554 M2446 660H2554 M2446 670H2554 M2446 680H2554 M2446 690H2554 M2446 700H2554 M2446 710H2554 M2446 720H2554 M2446 730H2554 M2446 740H2554 M2446 750H2554"/>
+      <rect class="room" x="2608" y="552" width="112" height="104"/>
+      <rect class="room" x="2608" y="656" width="112" height="104"/>
+      <polygon class="room" points="2720,552 2892,552 2875,720 2720,720"/>
+      <polygon class="room" points="2720,720 2875,720 2866,820 2720,820"/>
+      <polygon class="room" points="2720,820 2866,820 2857,920 2720,920"/>
+      <polygon class="room" points="2720,920 2857,920 2850,1020 2720,1020"/>
+
+      <rect class="room" x="1480" y="840" width="172" height="180"/>
+      <rect class="room" x="1652" y="840" width="320" height="180"/>
+      <rect class="room" x="1972" y="840" width="420" height="180"/>
+      <rect class="room" x="2392" y="840" width="240" height="180"/>
+      <rect class="room" x="2632" y="840" width="88" height="180"/>
+      <text class="t sm dk" x="1566" y="925">DEPT. DE</text><text class="t sm dk" x="1566" y="948">FÍSICA Y QUÍMICA</text>
+      <text class="t sm dk" x="2182" y="925">LABORATORIOS</text><text class="t sm dk" x="2182" y="948">FÍSICA Y QUÍMICA</text>
+      <text class="t sm dk" x="2490" y="938">BIBLIOTECA</text>
+
+      <text class="n" x="2490" y="410">102</text>
+      <text class="t sm dk" x="2806" y="630">SALA DE</text><text class="t sm dk" x="2806" y="652">JUNTAS</text>
+      <text class="t sm dk" x="2795" y="776">DIRECCIÓN</text>
+      <text class="t sm dk" x="2790" y="876">SECRETARIO</text>
+      <text class="t sm dk" x="2786" y="964">DESPACHO</text><text class="t sm dk" x="2786" y="984">TIC</text>
+
+      <!-- puertas (orientativas) -->
+      <path class="door" d="M250 808h22 M380 808h22 M562 808h22 M662 808h22 M790 808h22 M1030 808h22 M1278 808h22 M80 848h22 M222 848h22 M370 848h22 M556 848h22 M664 848h22 M770 848h22 M1018 848h22 M1262 848h22 M1660 740h22 M1500 740h22 M2400 552h22 M1700 840h22 M2000 840h22 M2410 840h22"/>
+      <path class="arc" d="M250 808v-22a22 22 0 0 1 22 22 M380 808v-22a22 22 0 0 1 22 22 M562 808v-22a22 22 0 0 1 22 22 M662 808v-22a22 22 0 0 1 22 22 M790 808v-22a22 22 0 0 1 22 22 M1030 808v-22a22 22 0 0 1 22 22 M1278 808v-22a22 22 0 0 1 22 22 M80 848v22a22 22 0 0 0 22 -22 M222 848v22a22 22 0 0 0 22 -22 M370 848v22a22 22 0 0 0 22 -22 M556 848v22a22 22 0 0 0 22 -22 M664 848v22a22 22 0 0 0 22 -22 M770 848v22a22 22 0 0 0 22 -22 M1018 848v22a22 22 0 0 0 22 -22 M1700 840v22a22 22 0 0 0 22 -22 M2000 840v22a22 22 0 0 0 22 -22 M2410 840v22a22 22 0 0 0 22 -22"/>
+
+      <!-- notas a mano -->
+      <path class="wl" d="M210 560 V610"/><text class="wt" x="72" y="550">RETIRAR ORDENADOR</text>
+      <path class="wl" d="M286 1020 V1046"/><text class="wt" x="286" y="1070" text-anchor="middle">CAMBIADO A PORTÁTIL</text>
+      <text class="wt" x="2584" y="256">COMPROBAR</text>
+
+      <!-- ===== RED ===== -->
+      <!-- switch de Jefatura de Estudios: todas las aulas de la planta -->
+      <g>
+        <path class="cable" d="M1144 792 V828"/>
+        <path class="cable" d="M120 828 H1328"/>
+        <path class="cable" d="M170 828 V780"/><circle class="end" cx="170" cy="780" r="9"/>
+        <path class="cable" d="M319 828 V760"/><circle class="end" cx="319" cy="760" r="9"/>
+        <path class="cable" d="M480 828 V760"/><circle class="end" cx="480" cy="760" r="9"/>
+        <path class="cable" d="M620 828 V760"/><circle class="end" cx="620" cy="760" r="9"/>
+        <path class="cable" d="M735 828 V760"/><circle class="end" cx="735" cy="760" r="9"/>
+        <path class="cable" d="M920 828 V760"/><circle class="end" cx="920" cy="760" r="9"/>
+        <path class="cable" d="M1328 828 V778"/><circle class="end" cx="1328" cy="778" r="9"/>
+        <path class="cable" d="M120 828 V900"/><circle class="end" cx="120" cy="900" r="9"/>
+        <path class="cable" d="M270 828 V900"/><circle class="end" cx="270" cy="900" r="9"/>
+        <path class="cable" d="M430 828 V900"/><circle class="end" cx="430" cy="900" r="9"/>
+        <path class="cable" d="M585 828 V900"/><circle class="end" cx="585" cy="900" r="9"/>
+        <path class="cable" d="M690 828 V900"/><circle class="end" cx="690" cy="900" r="9"/>
+        <path class="cable" d="M860 828 V900"/><circle class="end" cx="860" cy="900" r="9"/>
+        <path class="cable" d="M1100 828 V900"/><circle class="end" cx="1100" cy="900" r="9"/>
+        <path class="cable" d="M1290 828 V900"/><circle class="end" cx="1290" cy="900" r="9"/>
+        <g class="end"><circle cx="170" cy="828" r="6"/><circle cx="319" cy="828" r="6"/><circle cx="480" cy="828" r="6"/><circle cx="620" cy="828" r="6"/><circle cx="735" cy="828" r="6"/><circle cx="920" cy="828" r="6"/><circle cx="1144" cy="828" r="6"/><circle cx="270" cy="828" r="6"/><circle cx="430" cy="828" r="6"/><circle cx="585" cy="828" r="6"/><circle cx="690" cy="828" r="6"/><circle cx="860" cy="828" r="6"/><circle cx="1100" cy="828" r="6"/><circle cx="1290" cy="828" r="6"/></g>
+        <symbol id="sw-icon" viewBox="0 200 1200 800">
+          <path d="M175 250H1025Q1045 250 1050 265L1198 605Q1205 650 1170 650H30Q-5 650 2 605L150 265Q155 250 175 250Z" fill="var(--cable-soft)"/>
+          <path d="M0 650H1200V925Q1200 950 1175 950H25Q0 950 0 925Z" fill="var(--cable)"/>
+          <g fill="var(--wall)">
+            <path d="M400 725H450V750H475V775H500V875H350V775H375V750H400Z"/>
+            <path d="M600 725H650V750H675V775H700V875H550V775H575V750H600Z"/>
+            <path d="M800 725H850V750H875V775H900V875H750V775H775V750H800Z"/>
+            <path d="M1000 725H1050V750H1075V775H1100V875H950V775H975V750H1000Z"/>
+          </g>
+          <g fill="var(--pp)">
+            <circle cx="125" cy="750" r="25"/><circle cx="225" cy="750" r="25"/>
+            <circle cx="125" cy="850" r="25"/><circle cx="225" cy="850" r="25"/>
+          </g>
+        </symbol>
+        <use href="#sw-icon" x="1112" y="754" width="64" height="43"/>
+      </g>
+
+      <!-- switch junto al Almacén TIC: Sala de profesores, Aula de Música y planta baja -->
+      <g>
+        <path class="cable" d="M2390 616 V788 Q2390 800 2378 800 H1712 Q1700 800 1700 788 V692"/>
+        <!-- switch de la Sala de profesores: unos 10 puestos y la Sala de claustros -->
+        <path class="cable" d="M1700 660 V600 M1650 600 H1772"/>
+        <path class="cable" d="M1650 600 V580 M1675 600 V580 M1725 600 V580 M1750 600 V580 M1772 600 V580 M1650 600 V622 M1675 600 V622 M1725 600 V622 M1750 600 V622 M1772 600 V622"/>
+        <g class="end"><circle cx="1650" cy="580" r="7"/><circle cx="1675" cy="580" r="7"/><circle cx="1725" cy="580" r="7"/><circle cx="1750" cy="580" r="7"/><circle cx="1772" cy="580" r="7"/><circle cx="1650" cy="622" r="7"/><circle cx="1675" cy="622" r="7"/><circle cx="1725" cy="622" r="7"/><circle cx="1750" cy="622" r="7"/><circle cx="1772" cy="622" r="7"/></g>
+        <text class="t xs" x="1746" y="652">10 PUESTOS</text>
+        <path class="cable" d="M1684 676 H1562"/><circle class="end" cx="1562" cy="676" r="9"/>
+        <use href="#sw-icon" x="1668" y="654" width="64" height="43"/>
+        <path class="cable" d="M2390 584 V430"/><circle class="end" cx="2390" cy="430" r="9"/>
+        <path class="cable up" d="M2406 610 H2568 Q2580 610 2580 622 V1196"/>
+        <polygon class="end" points="2567,1170 2593,1170 2580,1194"/>
+        <use href="#sw-icon" x="2358" y="578" width="64" height="43"/>
+        <text class="swl" x="2376" y="578" text-anchor="end">JUNTO AL ALMACÉN TIC</text>
+        <rect class="cbb" x="2190" y="1196" width="790" height="56" rx="28"/>
+        <text class="cbt" x="2585" y="1233">Baja a la planta baja: switch del Lab. de Ensayos Físicos</text>
+      </g>
+
+      <!-- router principal (Sala del router): cables individuales -->
+      <g>
+        <path class="cable" d="M2640 496 H2586 Q2574 496 2574 508 V578 Q2574 590 2562 590 H2406"/>
+        <!-- Jefatura: cable normal (azul) -->
+        <path class="cable" d="M2652 536 V820 Q2652 832 2640 832 H1412 Q1400 832 1400 820 V747 Q1400 735 1388 735 H1164 Q1152 735 1152 747 V760"/>
+        <!-- Jefatura: cable de gestión (verde, VPN) -->
+        <path class="cable gcab" d="M2640 520 H2632 Q2620 520 2620 532 V804 Q2620 816 2608 816 H1428 Q1416 816 1416 804 V731 Q1416 719 1404 719 H1238 Q1226 719 1226 707 V657"/>
+        <!-- switch de gestión de Jefatura: tres puestos -->
+        <path class="cable gcab" d="M1242 641 H1254"/><circle class="gend" cx="1254" cy="641" r="9"/>
+        <path class="cable gcab" d="M1210 650 H1190 Q1178 650 1178 662 V700 Q1178 712 1166 712 H1052 Q1040 712 1040 724 V790"/><circle class="gend" cx="1040" cy="790" r="9"/>
+        <path class="cable gcab" d="M1090 712 V790"/><circle class="gend" cx="1090" cy="790" r="9"/><circle class="gend" cx="1090" cy="712" r="6"/>
+        <rect class="rt" x="1210" y="625" width="32" height="32" rx="5"/>
+        <!-- Sala de Juntas (azul) -->
+        <path class="cable" d="M2696 520 H2728 Q2740 520 2740 532 V588 Q2740 600 2752 600 H2770"/><circle class="end" cx="2770" cy="600" r="9"/>
+        <!-- Dirección y Secretario: gestión (verde, VPN) -->
+        <path class="cable gcab" d="M2684 536 V788 Q2684 800 2696 800 H2760"/><circle class="gend" cx="2760" cy="800" r="9"/>
+        <path class="cable gcab" d="M2668 536 V888 Q2668 900 2680 900 H2760"/><circle class="gend" cx="2760" cy="900" r="9"/>
+        <rect class="rt" x="2640" y="480" width="56" height="56" rx="6"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="grid">
+    <section>
+      <h2>Switches y cables</h2>
+      <table>
+        <tr><th>Switch en</th><th>Da servicio a</th></tr>
+        <tr><td class="m" style="color:var(--pp)">Router principal · Sala del router</td><td>Cables individuales. De gestión (verde, VPN): Dirección, Secretario y el switch de gestión de Jefatura. Normales (azul): Sala de Juntas, el switch junto al Almacén TIC y el switch de Jefatura</td></tr>
+        <tr><td class="m" style="color:var(--pp)">129 · Jefatura (gestión)</td><td>Switch de gestión aparte, con tres puestos: uno a la derecha y dos abajo a la izquierda</td></tr>
+        <tr><td class="m cb">129 · Jefatura</td><td>Todas las aulas de la planta: 117, 119, 121, 123, 125, 127, 131, 115, 113, 111, 109, 107, 105, 103 y 101</td></tr>
+        <tr><td class="m cb">Junto al Almacén TIC</td><td>Switch de la Sala de profesores, Aula de Música (102) y la planta baja (switch del Lab. de Ensayos Físicos)</td></tr>
+        <tr><td class="m cb">Sala de profesores</td><td>Unos 10 puestos repartidos por la sala y un cable a la Sala de claustros</td></tr>
+      </table>
+    </section>
+    <section>
+      <h2>Notas del original</h2>
+      <table>
+        <tr><th>Dónde</th><th>Nota</th></tr>
+        <tr><td class="m wn">Jefatura</td><td>Comprobar si va al escobero (como gestión) o no</td></tr>
+        <tr><td class="m wn">Aula de Música</td><td>Comprobar</td></tr>
+        <tr><td class="m wn">113</td><td>Cambiado a portátil</td></tr>
+        <tr><td class="m wn">117 / 119</td><td>Retirar ordenador</td></tr>
+      </table>
+    </section>
+    <section>
+      <h2>A revisar</h2>
+      <ul class="check">
+        <li>El escaneo se ve con poca resolución; la forma de las salas de la derecha es aproximada.</li>
+        <li>No se han dibujado las aulas tachadas del original: no consta qué significa la X.</li>
+        <li>Faltan los nombres de las dos salas pequeñas junto a Economía.</li>
+      </ul>
+    </section>
+  </div>
+</div>

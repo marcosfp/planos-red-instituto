@@ -1,0 +1,345 @@
+<title>Segunda planta · red</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: plano técnico apaisado a todo el ancho, leyenda encima, tablas de cableado debajo */
+:root{
+  --bg:#f3f5f7; --paper:#ffffff; --fg:#17212b; --muted:#5d6b78;
+  --wall:#27333f; --room:#ffffff; --svc:#e4e9ee; --corr:#fbf1c7; --patio:#f5cdb4;
+  --cable:#1f5fd6; --cable-soft:#dbe7ff; --pp:#0b7a53; --pp-soft:#dcf3ea; --ubi:#2fb4e9; --warn:#a15c00;
+  --rule:#d5dbe1;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#12171c; --paper:#1a2129; --fg:#e6ebf0; --muted:#9aa7b3;
+  --wall:#b9c4cf; --room:#1a2129; --svc:#262f39; --corr:#3a341b; --patio:#4d2e21;
+  --cable:#6ea4ff; --cable-soft:#1d3157; --pp:#4fd0a0; --pp-soft:#143a2e; --ubi:#7fd6f7; --warn:#f0b35a;
+  --rule:#313b46; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#12171c; --paper:#1a2129; --fg:#e6ebf0; --muted:#9aa7b3;
+  --wall:#b9c4cf; --room:#1a2129; --svc:#262f39; --corr:#3a341b; --patio:#4d2e21;
+  --cable:#6ea4ff; --cable-soft:#1d3157; --pp:#4fd0a0; --pp-soft:#143a2e; --ubi:#7fd6f7; --warn:#f0b35a;
+  --rule:#313b46; color-scheme:dark }
+
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.5;
+  padding-inline:20px;padding-block:28px 48px}
+.wrap{max-width:1700px;margin-inline:auto;display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px}
+h1{margin:0;font-size:28px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.sub{margin:2px 0 0;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--muted);list-style:none;margin:0;padding:0}
+.legend li{display:flex;align-items:center;gap:8px}
+.k-cable{width:28px;height:0;border-top:2.5px solid var(--cable)}
+.k-up{width:28px;height:0;border-top:2.5px dashed var(--cable)}
+.k-sw{width:14px;height:14px;background:var(--cable);border-radius:2px}
+.k-gsw{width:26px;height:10px;background:var(--pp);border-radius:2px}
+.k-ubi{width:26px;height:10px;background:var(--ubi);border-radius:2px}
+.k-svc{width:18px;height:14px;background:var(--svc);border:1.5px solid var(--wall)}
+
+.plan{background:var(--paper);border:1px solid var(--rule);overflow-x:auto}
+.plan svg{display:block;width:100%;min-width:1300px;height:auto}
+.room{fill:var(--room);stroke:var(--wall);stroke-width:4;stroke-linejoin:round}
+.svc{fill:var(--svc);stroke:var(--wall);stroke-width:4;stroke-linejoin:round}
+.corr{fill:var(--corr);stroke:var(--wall);stroke-width:4;stroke-linejoin:round}
+.patio{fill:var(--patio);stroke:var(--wall);stroke-width:4;stroke-linejoin:round}
+.hl{stroke:var(--wall);stroke-width:1.6}
+.hatch{fill:url(#hatch);stroke:var(--wall);stroke-width:4;stroke-linejoin:round}
+.tr{stroke:var(--wall);stroke-width:1.6;fill:none}
+.win{stroke:var(--wall);stroke-width:2.5;stroke-dasharray:38 12;fill:none}
+.door{stroke:var(--corr);stroke-width:7;fill:none}
+.arc{stroke:var(--wall);stroke-width:2;fill:none}
+.n{font-family:var(--mono);font-weight:600;font-size:42px;fill:var(--fg);text-anchor:middle}
+.t{font-family:var(--sans);font-weight:500;font-size:23px;fill:var(--muted);text-anchor:middle;letter-spacing:.04em}
+.t.sm{font-size:15px}
+.t.ub{font-size:14px;font-weight:600;fill:var(--fg);letter-spacing:.02em}
+.cable{stroke:var(--cable);stroke-width:5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.up{stroke-dasharray:14 11}
+.end{fill:var(--cable)}
+.sw{fill:var(--cable);stroke:var(--paper);stroke-width:3}
+.gsw{fill:var(--pp);stroke:var(--paper);stroke-width:3}
+.usw{fill:var(--ubi);stroke:var(--paper);stroke-width:3}
+.ppb{fill:var(--pp-soft)}
+.ppt{font-family:var(--mono);font-weight:600;font-size:28px;fill:var(--pp);text-anchor:middle}
+.ppl{stroke:var(--pp);stroke-width:3}
+.cbb{fill:var(--cable-soft)}
+.cbt{font-family:var(--sans);font-weight:600;font-size:26px;fill:var(--cable);text-anchor:middle}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px 36px}
+.grid>section{min-width:0}
+h2{margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px 6px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:13px}
+td.m{font-family:var(--mono);font-weight:600;white-space:nowrap}
+td.pp{color:var(--pp)} td.cb{color:var(--cable)}
+.check{margin:0;padding-left:18px}
+.check li{margin-bottom:6px}
+.check li::marker{color:var(--warn)}
+.k-pat{width:18px;height:14px;background:var(--patio);border:1.5px solid var(--wall)}
+.k-cor{width:18px;height:14px;background:var(--corr);border:1.5px solid var(--wall)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Segunda planta</h1>
+      <p class="sub">Cableado Ethernet, switches, fibra y enlaces Ubiquiti por aula</p>
+    </div>
+    <ul class="legend">
+      <li><svg width="32" height="21" viewBox="0 200 1200 800"><use href="#sw-icon" x="0" y="200" width="1200" height="800"/></svg>Switch</li>
+      <li><span class="k-gsw"></span>Fibra</li>
+      <li><span class="k-ubi"></span>Fibra Ubiquiti</li>
+      <li><span class="k-cable"></span>Cable Ethernet</li>
+      <li><span class="k-pat"></span>Patio</li><li><span class="k-cor"></span>Pasillo</li>
+      <li><span class="k-svc"></span>Escaleras, aseos</li>
+    </ul>
+  </header>
+
+  <div class="plan">
+    <svg viewBox="0 195 3330 870" role="img" aria-label="Plano horizontal de la segunda planta con switches, cables Ethernet, fibra y enlaces Ubiquiti">
+      <defs>
+        <pattern id="hatch" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line class="hl" x1="0" y1="0" x2="0" y2="12"/>
+        </pattern>
+        <!-- icono de switch: cuerpo y puertos con la paleta del plano -->
+        <symbol id="sw-icon" viewBox="0 200 1200 800">
+          <path d="M175 250H1025Q1045 250 1050 265L1198 605Q1205 650 1170 650H30Q-5 650 2 605L150 265Q155 250 175 250Z" fill="var(--cable-soft)"/>
+          <path d="M0 650H1200V925Q1200 950 1175 950H25Q0 950 0 925Z" fill="var(--cable)"/>
+          <g fill="var(--wall)">
+            <path d="M400 725H450V750H475V775H500V875H350V775H375V750H400Z"/>
+            <path d="M600 725H650V750H675V775H700V875H550V775H575V750H600Z"/>
+            <path d="M800 725H850V750H875V775H900V875H750V775H775V750H800Z"/>
+            <path d="M1000 725H1050V750H1075V775H1100V875H950V775H975V750H1000Z"/>
+          </g>
+          <g fill="var(--pp)">
+            <circle cx="125" cy="750" r="25"/><circle cx="225" cy="750" r="25"/>
+            <circle cx="125" cy="850" r="25"/><circle cx="225" cy="850" r="25"/>
+          </g>
+        </symbol>
+      </defs>
+
+      <!-- ================= ALA IZQUIERDA ================= -->
+      <polygon class="corr" points="65,561 1440,561 1440,600 1561,600 1561,939 65,939"/>
+      <rect class="corr" x="1561" y="724" width="24" height="43"/>
+      <path class="win" d="M70 551H1436 M70 950H1556"/>
+      <!-- escalera esquina 217 -->
+      <rect class="svc" x="73" y="527" width="121" height="34"/>
+      <path class="tr" d="M92 533H186 M92 538H186 M92 543H186 M92 548H186 M92 553H186"/>
+      <!-- fila superior -->
+      <rect class="room" x="65" y="561" width="146" height="163"/>
+      <rect class="room" x="211" y="561" width="99" height="163"/>
+      <rect class="room" x="310" y="561" width="236" height="163"/>
+      <rect class="room" x="546" y="561" width="146" height="163"/>
+      <rect class="room" x="692" y="561" width="121" height="163"/>
+      <rect class="room" x="813" y="561" width="253" height="163"/>
+      <rect class="room" x="1066" y="561" width="284" height="163"/>
+      <rect class="svc"  x="1350" y="561" width="90" height="163"/>
+      <rect class="svc"  x="1440" y="600" width="121" height="50"/>
+      <path class="tr" d="M1482 600V650 M1520 600V650 M1489 606V644 M1496 606V644 M1503 606V644 M1510 606V644"/>
+      <!-- fila inferior -->
+      <rect class="room" x="65" y="789" width="98" height="150"/>
+      <rect class="room" x="163" y="789" width="121" height="150"/>
+      <rect class="room" x="284" y="789" width="245" height="150"/>
+      <rect class="room" x="529" y="789" width="133" height="150"/>
+      <rect class="room" x="662" y="789" width="138" height="150"/>
+      <rect class="room" x="800" y="789" width="245" height="150"/>
+      <rect class="room" x="1045" y="789" width="271" height="150"/>
+      <!-- aseos -->
+      <rect class="svc"  x="1316" y="789" width="245" height="150"/>
+      <path class="tr" d="M1378 789V939 M1458 789V890 M1378 890H1458 M1494 802H1556 M1494 821H1556 M1494 840H1556 M1494 859H1556 M1494 878H1556 M1494 897H1556 M1494 916H1556 M1494 789V939"/>
+      <circle class="tr" cx="1398" cy="820" r="8"/><circle class="tr" cx="1398" cy="848" r="8"/><circle class="tr" cx="1474" cy="820" r="8"/><circle class="tr" cx="1474" cy="848" r="8"/><circle class="tr" cx="1474" cy="876" r="8"/>
+      <path class="tr" d="M1330 880H1364 M1330 887H1364 M1330 894H1364"/>
+
+      <text class="n" x="138" y="630">217</text>
+      <text class="t" x="260" y="618">FILO</text><text class="t sm" x="260" y="640">despacho</text>
+      <text class="n" x="428" y="630">221</text>
+      <text class="n" x="619" y="630">223</text>
+      <text class="n" x="752" y="630">225</text>
+      <text class="n" x="940" y="630">227</text>
+      <text class="n" x="1208" y="655">229</text>
+      <text class="t sm" x="1381" y="676">CUARTO</text><text class="t sm" x="1381" y="694">ESCAL.</text>
+      <text class="n" x="114" y="895">215</text>
+      <text class="n" x="223" y="895">213</text>
+      <text class="n" x="406" y="895">211</text>
+      <text class="n" x="595" y="895">209</text>
+      <text class="t" x="731" y="888">DESP.</text><text class="t" x="731" y="915">INGLÉS</text>
+      <text class="n" x="960" y="900">205</text>
+      <text class="n" x="1180" y="880">203</text>
+
+      <!-- ================= ALA DERECHA ================= -->
+      <polygon class="corr" points="1585,262 1890,262 1890,555 2570,555 2570,245 3275,245 3275,939 1585,939"/>
+      <path class="win" d="M1590 950H3270 M3287 250V934 M1574 270V700 M1894 228H2566"/>
+      <!-- zona rayada y aula 202 -->
+      <rect class="svc" x="1605" y="277" width="279" height="268"/>
+      <rect class="hatch" x="1605" y="277" width="279" height="268"/>
+      <rect class="room" x="1752" y="363" width="132" height="161"/>
+      <rect class="svc" x="1825" y="530" width="309" height="135"/>
+      <rect class="hatch" x="1825" y="530" width="309" height="135"/>
+      <!-- patios -->
+      <rect class="patio" x="1894" y="305" width="558" height="250"/>
+      <path class="tr" d="M1894 305L2452 555 M2452 305L1894 555"/>
+      <rect class="patio" x="2585" y="298" width="357" height="245"/>
+      <path class="tr" d="M2585 298L2942 543 M2942 298L2585 543"/>
+      <!-- aseos superiores -->
+      <rect class="svc" x="2570" y="245" width="382" height="53"/>
+      <g class="tr"><circle cx="2594" cy="264" r="7"/><circle cx="2618" cy="264" r="7"/><circle cx="2642" cy="264" r="7"/><circle cx="2666" cy="264" r="7"/><circle cx="2690" cy="264" r="7"/><circle cx="2714" cy="264" r="7"/><circle cx="2738" cy="264" r="7"/><circle cx="2762" cy="264" r="7"/><circle cx="2786" cy="264" r="7"/><circle cx="2810" cy="264" r="7"/><circle cx="2834" cy="264" r="7"/><circle cx="2858" cy="264" r="7"/><circle cx="2882" cy="264" r="7"/><circle cx="2906" cy="264" r="7"/><circle cx="2930" cy="264" r="7"/></g>
+      <path class="tr" d="M2580 282H2942"/>
+      <!-- escalera principal -->
+      <rect class="svc" x="1614" y="565" width="162" height="142"/>
+      <path class="tr" d="M1622 571V598 M1630 571V598 M1638 571V598 M1646 571V598 M1654 571V598 M1662 571V598 M1670 571V598 M1678 571V598 M1686 571V598 M1694 571V598 M1702 571V598 M1710 571V598 M1718 571V598 M1726 571V598 M1734 571V598 M1742 571V598 M1750 571V598 M1758 571V598 M1766 571V598"/>
+      <path class="tr" d="M1619 606H1656 M1619 614H1656 M1619 622H1656 M1619 630H1656 M1619 638H1656 M1619 646H1656 M1619 654H1656 M1619 662H1656 M1734 606H1771 M1734 614H1771 M1734 622H1771 M1734 630H1771 M1734 638H1771 M1734 646H1771 M1734 654H1771 M1734 662H1771 M1614 672H1776"/>
+      <rect class="tr" x="1660" y="606" width="70" height="56"/>
+      <rect class="tr" x="1629" y="712" width="60" height="18"/>
+      <!-- 204 / 206 -->
+      <rect class="room" x="2134" y="555" width="225" height="110"/>
+      <rect class="room" x="2359" y="555" width="235" height="110"/>
+      <!-- escalera frente a la 216 -->
+      <rect class="svc" x="2727" y="608" width="147" height="157"/>
+      <path class="tr" d="M2732 618H2772 M2732 627H2772 M2732 636H2772 M2732 645H2772 M2732 654H2772 M2732 663H2772 M2732 672H2772 M2732 681H2772 M2732 690H2772 M2732 699H2772 M2732 708H2772 M2732 717H2772 M2776 612V728 M2727 730H2874"/>
+      <path class="tr" d="M2786 614L2798 726 M2796 614L2808 726 M2806 614L2818 726 M2816 614L2828 726 M2826 614L2838 726 M2836 614L2848 726 M2846 614L2858 726 M2856 614L2868 726"/>
+      <!-- fila inferior -->
+      <rect class="room" x="1605" y="767" width="176" height="172"/>
+      <rect class="room" x="1800" y="767" width="206" height="172"/>
+      <rect class="room" x="2006" y="767" width="329" height="172"/>
+      <rect class="room" x="2335" y="767" width="274" height="172"/>
+      <rect class="room" x="2609" y="767" width="323" height="172"/>
+      <rect class="room" x="2932" y="767" width="343" height="172"/>
+      <!-- 220 y cuerpo derecho -->
+      <polygon class="room" points="2947,292 3058,314 3040,570 2915,549"/>
+      <rect class="room" x="3119" y="245" width="156" height="134"/>
+      <polygon class="room" points="3119,379 3275,379 3275,605 3119,582"/>
+      <polygon class="room" points="3075,575 3275,605 3275,767 3075,767"/>
+
+      <text class="n" x="1818" y="425">202</text><text class="t" x="1818" y="457">1B</text>
+      <text class="t" x="1693" y="882">DEPT.</text><text class="t" x="1693" y="910">CC. NN.</text>
+      <text class="t" x="1903" y="882">AULA</text><text class="t" x="1903" y="910">CC. NN.</text>
+      <text class="t" x="2170" y="882">LABORATORIO</text><text class="t" x="2170" y="910">CC. NN.</text>
+      <text class="n" x="2200" y="625">204</text>
+      <text class="n" x="2420" y="625">206</text>
+      <text class="n" x="2472" y="900">218</text>
+      <text class="n" x="2770" y="885">216</text>
+      <text class="n" x="3090" y="885">214</text>
+      <text class="n" x="2990" y="385">220</text>
+      <text class="n" x="3185" y="308">208</text>
+      <text class="n" x="3185" y="462">210</text>
+      <text class="n" x="3160" y="678">212</text>
+      <text class="t sm" x="2173" y="335">PATIO</text>
+      <text class="t sm" x="2763" y="328">PATIO</text>
+
+      <!-- ================= PUERTAS ================= -->
+      <path class="door" d="M185 724h22 M250 724h22 M500 724h22 M568 724h22 M788 724h22 M1022 724h22 M1307 724h22 M1409 724h22"/>
+      <path class="arc" d="M185 724v-22a22 22 0 0 1 22 22 M250 724v-22a22 22 0 0 1 22 22 M500 724v-22a22 22 0 0 1 22 22 M568 724v-22a22 22 0 0 1 22 22 M788 724v-22a22 22 0 0 1 22 22 M1022 724v-22a22 22 0 0 1 22 22 M1307 724v-22a22 22 0 0 1 22 22"/>
+      <path class="door" d="M82 789h22 M255 789h22 M314 789h22 M563 789h22 M772 789h22 M859 789h22 M1075 789h22 M1340 789h22"/>
+      <path class="arc" d="M82 789v22a22 22 0 0 0 22 -22 M255 789v22a22 22 0 0 0 22 -22 M314 789v22a22 22 0 0 0 22 -22 M563 789v22a22 22 0 0 0 22 -22 M772 789v22a22 22 0 0 0 22 -22 M859 789v22a22 22 0 0 0 22 -22 M1075 789v22a22 22 0 0 0 22 -22 M1340 789v22a22 22 0 0 0 22 -22"/>
+      <path class="door" d="M1745 767h22 M1820 767h22 M1975 767h22 M2109 767h22 M2384 767h22 M2660 767h22 M2962 767h22"/>
+      <path class="arc" d="M1745 767v22a22 22 0 0 0 22 -22 M1820 767v22a22 22 0 0 0 22 -22 M1975 767v22a22 22 0 0 0 22 -22 M2109 767v22a22 22 0 0 0 22 -22 M2384 767v22a22 22 0 0 0 22 -22 M2660 767v22a22 22 0 0 0 22 -22 M2962 767v22a22 22 0 0 0 22 -22"/>
+      <path class="door" d="M2279 665h22 M2560 665h22 M1789 524h22 M3075 690v22 M3119 296v22 M3119 400v22 M2440 555h22"/>
+      <path class="arc" d="M2279 665v-22a22 22 0 0 1 22 22 M2560 665v-22a22 22 0 0 1 22 22"/>
+
+      <!-- ================= FIBRA Y UBIQUITI ================= -->
+      <g>
+        <line class="ppl" x1="1395" y1="507" x2="1395" y2="585"/>
+        <rect class="ppb" x="1150" y="455" width="390" height="52" rx="26"/>
+        <text class="ppt" x="1345" y="491">Fibra 25–30 + Ubiquiti</text>
+        <rect class="gsw" x="1360" y="585" width="70" height="22" rx="4"/>
+        <rect class="usw" x="1360" y="615" width="70" height="22" rx="4"/>
+        <rect class="usw" x="2505" y="573" width="70" height="24" rx="4"/>
+        <rect class="usw" x="2972" y="430" width="64" height="24" rx="4"/>
+        <text class="t sm ub" x="2540" y="616">UBIQUITI</text>
+        <text class="t sm ub" x="3005" y="473">UBIQUITI</text>
+      </g>
+
+      <!-- ================= CABLES ================= -->
+      <!-- switch 225: 217, Filo, 221, 223, 215, 213, 211 -->
+      <g>
+        <path class="cable" d="M737 706 V733 Q737 745 725 745 H126 Q114 745 114 757 V830"/><circle class="end" cx="114" cy="830" r="9"/>
+        <path class="cable" d="M160 745 V690"/><circle class="end" cx="160" cy="690" r="9"/>
+        <path class="cable" d="M260 745 V690"/><circle class="end" cx="260" cy="690" r="9"/>
+        <path class="cable" d="M428 745 V690"/><circle class="end" cx="428" cy="690" r="9"/>
+        <path class="cable" d="M619 745 V690"/><circle class="end" cx="619" cy="690" r="9"/>
+        <path class="cable" d="M223 745 V830"/><circle class="end" cx="223" cy="830" r="9"/>
+        <path class="cable" d="M406 745 V830"/><circle class="end" cx="406" cy="830" r="9"/>
+        <circle class="end" cx="160" cy="745" r="6"/><circle class="end" cx="260" cy="745" r="6"/><circle class="end" cx="428" cy="745" r="6"/><circle class="end" cx="619" cy="745" r="6"/><circle class="end" cx="223" cy="745" r="6"/><circle class="end" cx="406" cy="745" r="6"/>
+      </g>
+      <!-- despacho de Inglés: 209 y enlace al switch de la 225 -->
+      <g>
+        <path class="cable" d="M755 814 V706"/>
+        <path class="cable" d="M739 830 H595"/><circle class="end" cx="595" cy="830" r="9"/>
+      </g>
+      <!-- 225 -> switch 205 -> 227 -->
+      <g>
+        <path class="cable" d="M761 690 H767 Q779 690 779 702 V745 Q779 757 791 757 H858 Q870 757 870 769 V814"/>
+        <path class="cable" d="M886 830 H930 Q942 830 942 818 V690"/><circle class="end" cx="942" cy="690" r="9"/>
+      </g>
+      <use href="#sw-icon" x="713" y="668" width="64" height="43"/>
+      <use href="#sw-icon" x="723" y="808" width="64" height="43"/>
+      <use href="#sw-icon" x="838" y="808" width="64" height="43"/>
+
+      <!-- cuarto de la escalera: 202, Dept., Aula y Laboratorio de CC. NN. -->
+      <g>
+        <path class="cable" d="M1420 637 V736 Q1420 748 1432 748 H2158 Q2170 748 2170 760 V830"/><circle class="end" cx="2170" cy="830" r="9"/>
+        <path class="cable" d="M1360 596 H1285"/><circle class="end" cx="1285" cy="596" r="9"/>
+        <path class="cable" d="M1420 736 V766 Q1420 778 1408 778 H1302 Q1290 778 1290 790 V910 Q1290 922 1278 922 H798 Q786 922 786 910 V842 Q786 830 774 830 H771"/>
+        <path class="cable" d="M1290 850 H1250"/><circle class="end" cx="1250" cy="850" r="9"/><circle class="end" cx="1290" cy="850" r="6"/>
+        <circle class="end" cx="1420" cy="738" r="6"/>
+        <path class="cable" d="M1700 748 V830"/><circle class="end" cx="1700" cy="830" r="9"/>
+        <path class="cable" d="M1903 748 V830"/><circle class="end" cx="1903" cy="830" r="9"/>
+        <path class="cable" d="M1800 748 V495"/><circle class="end" cx="1800" cy="495" r="9"/>
+        <circle class="end" cx="1700" cy="748" r="6"/><circle class="end" cx="1903" cy="748" r="6"/><circle class="end" cx="1800" cy="748" r="6"/>
+      </g>
+
+      <!-- switch del vestíbulo: 204, 206, 218, 216, 214, 220 -->
+      <g>
+        <path class="cable" d="M2624 700 H2302 Q2290 700 2290 688 V640"/><circle class="end" cx="2290" cy="640" r="9"/>
+        <path class="cable" d="M2476 640 V830"/><circle class="end" cx="2476" cy="640" r="9"/><circle class="end" cx="2476" cy="830" r="9"/>
+        <path class="cable" d="M2640 716 V830"/><circle class="end" cx="2640" cy="830" r="9"/>
+        <path class="cable" d="M2640 684 V587 Q2640 575 2652 575 H2988 Q3000 575 3000 587 V830"/><circle class="end" cx="3000" cy="830" r="9"/>
+        <path class="cable" d="M2960 575 V480"/><circle class="end" cx="2960" cy="480" r="9"/>
+        <circle class="end" cx="2476" cy="700" r="6"/><circle class="end" cx="2960" cy="575" r="6"/>
+        <use href="#sw-icon" x="2608" y="678" width="64" height="43"/>
+      </g>
+
+      <!-- Switch de la 212: 212, 210, 208. Enlazado al switch del vestíbulo (216) -->
+      <g>
+        <path class="cable" d="M3250 741 V752 H2640"/>
+        <path class="cable" d="M3250 704 V347 Q3250 335 3238 335 H3200"/><circle class="end" cx="3200" cy="335" r="9"/>
+        <path class="cable" d="M3250 500 H3200"/><circle class="end" cx="3200" cy="500" r="9"/>
+        <path class="cable" d="M3234 720 H3170"/><circle class="end" cx="3170" cy="720" r="9"/>
+        <circle class="end" cx="3250" cy="500" r="6"/>
+        <use href="#sw-icon" x="3218" y="698" width="64" height="43"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="grid">
+    <section>
+      <h2>Switches y cables</h2>
+      <table>
+        <tr><th>Switch en</th><th>Da servicio a</th></tr>
+        <tr><td class="m cb">Desp. Inglés</td><td>209 y el switch de la 225. Le llega la red del cuarto de la escalera</td></tr>
+        <tr><td class="m cb">225</td><td>217, Filo (despacho), 221, 223, 215, 213, 211 y el switch de la 205</td></tr>
+        <tr><td class="m cb">205</td><td>227</td></tr>
+        <tr><td class="m cb">Vestíbulo</td><td>204, 206, 218, 216, 214, 220. Enlazado con el switch de la 212</td></tr>
+        <tr><td class="m cb">212</td><td>212, 210, 208. Enlazado con el switch del vestíbulo (216)</td></tr>
+      </table>
+    </section>
+    <section>
+      <h2>Fibra</h2>
+      <table>
+        <tr><th>Dónde</th><th>Qué hay</th></tr>
+        <tr><td class="m pp">Cuarto escalera</td><td>Fibra 25–30 y fibra Ubiquiti (sin numerar). Cables a la 229, 203, 202, Dept. CC. NN., Aula CC. NN., Laboratorio CC. NN. y al switch del despacho de Inglés.</td></tr>
+        <tr><td class="m pp">206</td><td>Fibra Ubiquiti</td></tr>
+        <tr><td class="m pp">220</td><td>Fibra Ubiquiti</td></tr>
+      </table>
+    </section>
+    <section>
+      <h2>A revisar</h2>
+      <ul class="check">
+        <li>229 y 203: se han unido al cuarto de la escalera (escobero); está previsto, falta confirmarlo.</li>
+        <li>220: se ha dibujado un cable desde el switch del vestíbulo; falta confirmar si además tiene switch propio.</li>
+        <li>Internet ya no sube de la 1.ª planta (dato corregido). Falta confirmar por dónde llega la red a esta planta.</li>
+        <li>202: el rótulo a mano se ha leído como «1B».</li>
+      </ul>
+    </section>
+  </div>
+</div>
